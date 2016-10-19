@@ -1,0 +1,89 @@
+<#import "layout.html" as layout>
+    <@layout.myLayout>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="input-group">
+                <input type="text" class="form-control" id="ipt_query">
+                    <span class="input-group-btn">
+                        <button id="btn_query" class="btn btn-default" type="button" data-model="">Go!</button>
+                    </span>
+            </div><!-- /input-group -->
+        </div>
+    </div>
+    <div class="row">
+        <div id="chart_group" style="height: 300px"></div>
+    </div>
+    <script>
+        var charts;
+
+        var mainDiv = document.getElementById('chart_group');
+        function createDiv(i){
+                //var newDiv = document.createElement('div');
+                mainDiv.innerHTML +='<div id="chart_'+i+'" style="height: 300px"></div>';
+                //mainDiv.appendChild(newDiv);
+        }
+
+
+        $("#ipt_query").keyup(function(event){
+            if(event.keyCode == 13){
+                $("#btn_query").click();
+            }
+        });
+        $('#btn_query').on('click',function(){
+            $.ajax({
+                        type: "GET",
+                        url: "/query/"+encodeURIComponent($('#ipt_query').val())
+                   }).done(function(data){
+                        if(data.success){
+                            charts=data.charts;
+                            drawChart();
+
+                        } else{
+                             alert("failed");
+                        }
+                   });
+        });
+
+        google.charts.load('current', {'packages':['corechart']});
+
+        function drawChart() {
+            var len=charts.length;
+            for(i=0;i<len;i++){
+                var chart=charts[i];
+                console.info(chart);
+                var arr=[];
+                arr[0]=chart.columns;
+
+                for(j=0;j<chart.values.length;j++){
+                    arr[j+1]=chart.values[j];
+                }
+
+                //console.info(arr);
+                var data=google.visualization.arrayToDataTable(arr);
+                var options={
+                    title: chart.name,
+                    curveType: 'function',
+                    pointSize: 10,
+                    legend: {position:'bottom'}
+                };
+
+                createDiv(i);
+
+                var my_div = document.getElementById('chart_'+i);
+                var my_chart = new google.visualization.LineChart(my_div);
+
+                google.visualization.events.addListener(my_chart, 'ready', function () {
+                  my_div.innerHTML = '<img src="' + my_chart.getImageURI() + '">';
+                });
+
+                my_chart.draw(data,options);
+                //new google.visualization.LineChart(document.getElementById('chart_'+i)).draw(data,options);
+
+            }
+
+
+        }
+
+
+    </script>
+</@layout.myLayout>

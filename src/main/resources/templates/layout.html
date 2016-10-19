@@ -1,0 +1,14 @@
+<#macro myLayout>
+    <html lang="en">
+    <#include "header.html"/>
+    <body>
+   <#include "menu.html"/>
+   <div class="jumbotron"></div>
+    <div class="container-fluid">
+        <#nested/>
+    </div>
+    </body>
+    <#include "footer.html"/>
+    </html>
+
+</#macro>
